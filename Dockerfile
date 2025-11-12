@@ -1,3 +1,6 @@
+# Composer Installer (used only to fetch the binary)
+FROM composer:2 AS composer_install
+
 # Start from the official FrankenPHP image
 FROM dunglas/frankenphp:latest
 
@@ -17,6 +20,9 @@ RUN install-php-extensions \
     pgsql \
     pcntl \
     opcache
+
+# Copy Composer from the installer stage
+COPY --from=composer_install /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /app

@@ -8,17 +8,12 @@ services:
       - "8000:80"
     volumes:
       - .:/app
+      - /app/vendor
+    env_file:
+      - .env
     depends_on:
-      - db
-    environment:
-      APP_ENV: local
-      APP_DEBUG: ${APP_DEBUG:-true}
-      DB_CONNECTION: pgsql
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: ${DB_DATABASE:-dynamic_reservations}
-      DB_USERNAME: ${DB_USERNAME:-user}
-      DB_PASSWORD: ${DB_PASSWORD:-secret}
+      db:
+        condition: service_healthy
 
   db:
     image: postgres:16-alpine
@@ -28,10 +23,28 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: ${DB_DATABASE:-dynamic_reservations}
-      POSTGRES_USER: ${DB_USERNAME:-user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+      POSTGRES_DB: ${DB_DATABASE} 
+      POSTGRES_USER: ${DB_USERNAME} 
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  node:
+    image: node:20-alpine
+    container_name: dynamic-reservations-node
+    working_dir: /app
+    volumes:
+      - .:/app
+    tty: true 
+    stdin_open: true 
+    command: sh -c "tail -f /dev/null"
 
 volumes:
   postgres_data:
