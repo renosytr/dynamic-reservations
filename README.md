@@ -1,59 +1,177 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Dynamic Reservations
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Dynamic Reservations is a Laravel 12 application built with **FrankenPHP**, **Laravel Octane**, **Inertia.js**, **Vite**, and **PostgreSQL**. This README will help developers run it locally and provide guidance for deployment.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Table of Contents
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. [Features](#features)  
+2. [Requirements](#requirements)  
+3. [Local Setup](#local-setup)  
+4. [Docker Setup](#docker-setup)  
+5. [Running the App](#running-the-app)  
+6. [Database](#database)  
+7. [Deployment Guide](#deployment-guide)  
+8. [Troubleshooting](#troubleshooting)  
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+---
 
-## Learning Laravel
+## Features
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- High-performance backend using **Laravel Octane + FrankenPHP**
+- Frontend built with **Vue 3 + Inertia.js + Vite**
+- Queue workers and scheduled tasks via **Supervisor**
+- PostgreSQL database integration
+- Scalable Dockerized architecture  
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## Requirements
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Docker >= 24  
+- Docker Compose >= 2.20  
+- Node.js >= 20 (optional if using Docker Node service)  
+- PHP >= 8.2 (Docker handles this)
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Local Setup
 
-## Contributing
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/dynamic-reservations.git
+cd dynamic-reservations
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. **Copy environment file**
+```bash
+cp .env.example .env
+```
 
-## Code of Conduct
+3. **Update environment variables**  
+Set `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD`.  
+For Docker, use:
+```env
+DB_HOST=db
+DB_PORT=5432
+DB_DATABASE=dynamic_reservations
+DB_USERNAME=postgres
+DB_PASSWORD=secret
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## Docker Setup
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+The project uses **multi-stage Docker builds**:
+
+1. **Build and start containers**
+```bash
+docker compose up -d --build
+```
+
+2. **Check running containers**
+```bash
+docker ps
+```
+You should see: `app`, `node`, and `db` containers.
+
+3. **Install frontend dependencies (if needed)**
+```bash
+docker compose exec node npm install
+docker compose exec node npm run build
+```
+
+4. **Install backend dependencies (if needed)**
+```bash
+docker compose exec app composer install
+```
+
+---
+
+## Running the App
+
+1. **Run migrations and seed the database**
+```bash
+docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed
+```
+
+2. **Access the application**
+- App: [http://localhost:8000](http://localhost:8000)  
+- Vite dev server: [http://localhost:5173](http://localhost:5173)
+
+3. **Supervisor manages the following services**:
+- Laravel Octane server
+- Queue workers
+- Scheduler  
+
+---
+
+## Database
+
+- Default database: **PostgreSQL**
+- Docker volume: `dynamic-reservations_postgres_data`
+- Migration & seeding:
+```bash
+docker compose exec app php artisan migrate
+docker compose exec app php artisan db:seed
+```
+
+---
+
+## Deployment Guide
+
+1. **Build Docker images for production**
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+2. **Environment variables**
+- Make sure `.env` contains production settings (DB credentials, APP_URL, CACHE_DRIVER, SESSION_DRIVER, etc.).
+
+3. **Database migrations**
+```bash
+docker compose exec app php artisan migrate --force
+```
+
+4. **Serving app**
+- The `app` container runs **FrankenPHP + Octane**.
+- Supervisor manages queue workers and scheduler.
+- Expose port 80 or configure a reverse proxy (Nginx/Caddy) for production.
+
+5. **Cache & optimize**
+```bash
+docker compose exec app php artisan config:cache
+docker compose exec app php artisan route:cache
+docker compose exec app php artisan view:cache
+```
+
+---
+
+## Troubleshooting
+
+- **500 Internal Server Error**  
+  - Check `.env` database credentials.  
+  - Ensure migrations and seeding are run.  
+  - Check Octane logs via:
+```bash
+docker compose logs -f app
+```
+
+- **Vite not found**  
+  - Run npm install in the Node container:
+```bash
+docker compose exec node npm install
+```
+
+- **Supervisor issues**  
+  - Ensure `.docker/supervisord.conf` is correctly configured and rebuild the `app` container if you made changes.
+
+---
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT © Your Name
+

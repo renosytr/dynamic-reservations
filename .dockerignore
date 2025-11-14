@@ -1,8 +1,2 @@
-.git
-.env
-/vendor # Crucial: prevents your local (empty) vendor folder from being copied
-/node_modules
-/storage/*.key
-/public/hot
-/public/storage
-/public/build
+bootstrap/cache/*.php
+!bootstrap/cache/.gitignore

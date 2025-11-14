@@ -1,43 +1,57 @@
-# Composer Installer (used only to fetch the binary)
-FROM composer:2 AS composer_install
+# Composer
+FROM composer:2 AS vendor
+WORKDIR /var/www/html
 
-# Start from the official FrankenPHP image
+COPY composer.json ./
+
+RUN composer install --no-dev --no-scripts --prefer-dist --optimize-autoloader
+
+# Node
+FROM node:20-alpine AS nodebuild
+WORKDIR /var/www/html
+
+COPY package*.json ./
+RUN npm install
+
+COPY resources resources
+COPY vite.config.* ./
+RUN npm run build
+
+# FrankenPHP
 FROM dunglas/frankenphp:latest
 
-# Install necessary system dependencies: git, unzip, and supervisor
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    git \
-    unzip \
-    supervisor \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
+    git unzip supervisor libpq-dev curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# Install required PHP extensions, including pdo_pgsql for PostgreSQL and pcntl for Octane
-# and supervisor/worker process control.
 RUN install-php-extensions \
     pdo_pgsql \
     pgsql \
     pcntl \
     opcache
 
-# Copy Composer from the installer stage
-COPY --from=composer_install /usr/bin/composer /usr/bin/composer
+COPY --from=vendor /usr/bin/composer /usr/bin/composer
 
-# Set working directory
-WORKDIR /app
+WORKDIR /var/www/html
 
-# Copy application code (excluding files in .dockerignore if you create one)
-COPY . /app
+COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader
+COPY --from=vendor /var/www/html/vendor ./vendor
+COPY --from=nodebuild /var/www/html/public/build ./public/build
 
-# Copy the Supervisor configuration file
+RUN mkdir -p storage bootstrap/cache && \
+    chown -R www-data:www-data /var/www/html && \
+    chmod -R 775 storage bootstrap/cache
+
+RUN php artisan config:clear && \
+    php artisan route:clear && \
+    php artisan view:clear
+
 COPY .docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Use a volume for Octane's cache/state if needed
-VOLUME /app/bootstrap/cache/octane
+VOLUME /var/www/html/bootstrap/cache/octane
 
-# Run Supervisor, which in turn starts FrankenPHP (via Octane) and the Laravel Worker.
+EXPOSE 80
+
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

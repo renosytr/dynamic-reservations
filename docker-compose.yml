@@ -4,48 +4,60 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: dynamic-reservations-app
+    restart: unless-stopped
     ports:
-      - "8000:80"
+      - '8000:80'
     volumes:
-      - .:/app
-      - /app/vendor
+      - ./:/var/www/html
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
+    networks:
+      - dynamic_reservation_network
 
   db:
     image: postgres:16-alpine
     container_name: dynamic-reservations-db
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
     environment:
-      POSTGRES_DB: ${DB_DATABASE} 
-      POSTGRES_USER: ${DB_USERNAME} 
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER']
       interval: 5s
       timeout: 5s
       retries: 10
       start_period: 10s
+    networks:
+      - dynamic_reservation_network
 
   node:
     image: node:20-alpine
     container_name: dynamic-reservations-node
-    working_dir: /app
+    working_dir: /var/www/html
     volumes:
-      - .:/app
-    tty: true 
-    stdin_open: true 
+      - ./:/var/www/html
+    tty: true
+    stdin_open: true
     command: sh -c "tail -f /dev/null"
+    ports:
+      - '5173:5173'
+    networks:
+      - dynamic_reservation_network
 
 volumes:
   postgres_data:
     driver: local
+
+networks:
+  dynamic_reservation_network:
+    name: dynamic_reservation_network
