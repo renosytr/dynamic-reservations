@@ -169,4 +169,3 @@ docker compose exec node npm install
 - **Supervisor issues**  
   - Ensure `.docker/supervisord.conf` is correctly configured and rebuild the `app` container if you made changes.
 
----
