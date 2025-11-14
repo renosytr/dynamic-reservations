@@ -40,7 +40,7 @@ Dynamic Reservations is a Laravel 12 application built with **FrankenPHP**, **La
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/dynamic-reservations.git
+git clone <REPOSITORY_URL>
 cd dynamic-reservations
 ```
 
