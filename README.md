@@ -170,8 +170,3 @@ docker compose exec node npm install
   - Ensure `.docker/supervisord.conf` is correctly configured and rebuild the `app` container if you made changes.
 
 ---
-
-## License
-
-MIT © Your Name
-
