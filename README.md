@@ -169,3 +169,6 @@ docker compose exec node npm install
 - **Supervisor issues**  
   - Ensure `.docker/supervisord.conf` is correctly configured and rebuild the `app` container if you made changes.
 
+- **Cannot save a file during local development**  
+  - Run `sudo chown -R $USER:$USER .` to change the ownership of the file in linux environment.
+
