@@ -1,6 +1,6 @@
 # Dynamic Reservations
 
-Dynamic Reservations is a Laravel 12 application built with **FrankenPHP**, **Laravel Octane**, **Inertia.js**, **Vite**, and **PostgreSQL**. This README will help developers run it locally and provide guidance for deployment.
+Dynamic Reservations is a Laravel 12 application for demonstrating Meeting Room and Locker Reservation built with **FrankenPHP**, **Laravel Octane**, **Inertia.js**, **Vite**, and **PostgreSQL**. This README will help developers run it locally and provide guidance for deployment.
 
 ---
 
