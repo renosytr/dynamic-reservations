@@ -1,20 +1,34 @@
+import '../css/app.css';
 import './bootstrap';
-import { createApp, h } from 'vue';
+
 import { createInertiaApp } from '@inertiajs/vue3';
-import type { DefineComponent } from 'vue';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createApp, DefineComponent, h } from 'vue';
+import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 
-void createInertiaApp({
-  title: (title) => `${title} - Dynamic Reservations`,
+const appName = import.meta.env.VITE_APP_NAME || 'Dynamic Reservations';
 
-  resolve: (name) => {
-    const pages = import.meta.glob('./Pages/**/*.vue', { eager: true });
-    const page = pages[`./Pages/${name}.vue`] as { default: DefineComponent };
-    return page.default;
-  },
+type AsyncPageResolverModule =
+    | Promise<DefineComponent>
+    | (() => Promise<DefineComponent>);
 
-  setup({ el, App, props, plugin }) {
-    createApp({ render: () => h(App, props) })
-      .use(plugin)
-      .mount(el);
-  },
+createInertiaApp({
+    title: () => appName,
+    resolve: (name) =>
+        resolvePageComponent(
+            `./Pages/${name}.vue`,
+            import.meta.glob<AsyncPageResolverModule>('./Pages/**/*.vue') as Record<
+                string,
+                AsyncPageResolverModule
+            >,
+        ),
+    setup({ el, App, props, plugin }) {
+        createApp({ render: () => h(App, props) })
+            .use(plugin)
+            .use(ZiggyVue)
+            .mount(el);
+    },
+    progress: {
+        color: '#4B5563',
+    },
 });
