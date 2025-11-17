@@ -21,7 +21,7 @@ Dynamic Reservations is a Laravel 12 application for demonstrating Meeting Room 
 
 - High-performance backend using **Laravel Octane + FrankenPHP**
 - Frontend built with **Vue 3 + Inertia.js + Vite**
-- Queue workers and scheduled tasks via **Supervisor**
+- Queue workers and scheduled tasks via **FrankenPHP**
 - PostgreSQL database integration
 - Scalable Dockerized architecture
 
@@ -112,14 +112,6 @@ docker compose exec app php artisan db:seed
 - App: [http://localhost:8000](http://localhost:8000)
 - Vite dev server: [http://localhost:5173](http://localhost:5173)
 
-3. **Supervisor manages the following services**:
-
-- Laravel Octane server
-- Queue workers
-- Scheduler
-
----
-
 ## Database
 
 - Default database: **PostgreSQL**
@@ -154,7 +146,7 @@ docker compose exec app php artisan migrate --force
 4. **Serving app**
 
 - The `app` container runs **FrankenPHP + Octane**.
-- Supervisor manages queue workers and scheduler.
+- FrankenPHP manages queue workers and scheduler.
 - Expose port 80 or configure a reverse proxy (Nginx/Caddy) for production.
 
 5. **Cache & optimize**
@@ -184,9 +176,6 @@ docker compose logs -f app
 ```bash
 docker compose exec node npm install
 ```
-
-- **Supervisor issues**
-  - Ensure `.docker/supervisord.conf` is correctly configured and rebuild the `app` container if you made changes.
 
 - **Cannot save a file during local development**
   - Run `sudo chown -R $USER:$USER .` to change the ownership of the file in linux environment.

@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${APP_IMAGE_TAG}
     container_name: dynamic-reservations-app
     restart: unless-stopped
     ports:
@@ -39,9 +37,7 @@ services:
       - dynamic_reservation_network
 
   scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ${APP_IMAGE_TAG}
     container_name: dynamic-reservations-scheduler
     restart: unless-stopped
     working_dir: /app
