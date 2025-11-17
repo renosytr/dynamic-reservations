@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\UserRfid;
+use App\Models\MeetingRoom;
 use Illuminate\Http\Request;
 
-class UserRfidController extends Controller
+class MeetingRoomController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +34,7 @@ class UserRfidController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(UserRfid $userRfid)
+    public function show(MeetingRoom $meetingRoom)
     {
         //
     }
@@ -42,7 +42,7 @@ class UserRfidController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(UserRfid $userRfid)
+    public function edit(MeetingRoom $meetingRoom)
     {
         //
     }
@@ -50,7 +50,7 @@ class UserRfidController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, UserRfid $userRfid)
+    public function update(Request $request, MeetingRoom $meetingRoom)
     {
         //
     }
@@ -58,7 +58,7 @@ class UserRfidController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(UserRfid $userRfid)
+    public function destroy(MeetingRoom $meetingRoom)
     {
         //
     }
